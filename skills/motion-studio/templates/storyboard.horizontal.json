@@ -1,0 +1,22 @@
+{
+  "title": "Product explainer",
+  "format": "16:9",
+  "fps": 30,
+  "language": "en",
+  "theme": { "preset": "ocean", "progress_bar": true },
+  "voice": { "provider": "auto" },
+  "music": { "generate": "pad", "volume_db": -17 },
+  "transition": "fade",
+  "scenes": [
+    { "id": "intro", "type": "kinetic", "narration": "Meet the fastest way to ship docs.",
+      "props": { "eyebrow": "Introducing", "lines": ["Docs that *write themselves*"], "style": "blur" } },
+    { "id": "problem", "type": "stat", "narration": "Teams lose six hours every week updating documentation.",
+      "props": { "value": 6, "suffix": "h", "label": "lost every week", "bar": 0.6 }, "transition": "slide-left" },
+    { "id": "how", "type": "list", "narration": "Connect your repo, pick a template, and publish.",
+      "props": { "title": "Three steps", "items": ["Connect your repo", "Pick a template", "Publish"], "icon": "number" } },
+    { "id": "shape", "type": "three", "narration": "It keeps everything in sync, automatically.",
+      "props": { "shape": "blob", "material": "glossy", "title": "Always *in sync*", "title_pos": "bottom" }, "transition": "zoom" },
+    { "id": "cta", "type": "cta", "narration": "Start free today.",
+      "props": { "title": "Start *free* today", "button": "Try it now", "url": "example.com" }, "transition": "iris" }
+  ]
+}

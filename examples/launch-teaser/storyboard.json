@@ -1,0 +1,77 @@
+{
+  "title": "Motion Studio launch teaser",
+  "format": "9:16",
+  "fps": 30,
+  "language": "en",
+  "theme": "midnight",
+  "voice": { "provider": "auto", "voice": "en-US-AndrewNeural", "rate": "+6%" },
+  "music": { "generate": "pulse", "volume_db": -16 },
+  "captions": { "max_words": 3 },
+  "transition": "push",
+  "scenes": [
+    {
+      "id": "hook",
+      "type": "kinetic",
+      "narration": "Type one prompt. Get a finished video.",
+      "props": { "lines": ["Type *one*", "prompt."], "sub": "Get a finished video.", "style": "rise", "accent_style": "underline" },
+      "camera": "push-in"
+    },
+    {
+      "id": "no-timeline",
+      "type": "compare",
+      "narration": "No After Effects. No Premiere. No timeline. Just your AI agent.",
+      "props": {
+        "title": "Skip the *timeline*",
+        "left": { "label": "Before", "items": ["After Effects", "Premiere", "Hours of keyframes"] },
+        "right": { "label": "Now", "items": ["One prompt", "Your AI agent", "Finished MP4"] }
+      },
+      "transition": "whip"
+    },
+    {
+      "id": "pipeline",
+      "type": "list",
+      "narration": "It writes the script, animates every scene, adds voiceover and captions, then mixes the sound.",
+      "props": {
+        "eyebrow": "What it does",
+        "title": "Script to *MP4*",
+        "items": ["Script and storyboard", "Animated scenes", "Voice and captions", "Sound design and mix"]
+      }
+    },
+    {
+      "id": "three-d",
+      "type": "three",
+      "narration": "Kinetic type, 3D and smooth camera moves.",
+      "props": { "shape": "torusKnot", "material": "glossy", "title": "Real *3D*", "title_pos": "top", "sub": "powered by Three.js" },
+      "transition": "zoom"
+    },
+    {
+      "id": "install",
+      "type": "terminal",
+      "narration": "Install it in one line and render.",
+      "props": {
+        "title": "zsh",
+        "lines": [
+          { "cmd": "git clone github.com/BMatiashchuk99/Claude-Skills" },
+          { "out": "✓ skill installed", "color": "green" },
+          { "cmd": "python3 build.py my-video" },
+          { "out": "✓ out/my-video.mp4  1080x1920", "color": "accent" }
+        ]
+      },
+      "transition": "slide-left"
+    },
+    {
+      "id": "free",
+      "type": "stat",
+      "narration": "And it costs exactly zero dollars.",
+      "props": { "value": 0, "from": 99, "prefix": "$", "label": "Free and open source", "sub": "Node.js · FFmpeg · Three.js" },
+      "transition": "iris"
+    },
+    {
+      "id": "cta",
+      "type": "cta",
+      "narration": "Grab it free on GitHub.",
+      "props": { "eyebrow": "Motion Studio", "title": "Make your\n*first video*", "button": "Get it on GitHub", "url": "github.com/BMatiashchuk99/Claude-Skills" },
+      "transition": "blur"
+    }
+  ]
+}

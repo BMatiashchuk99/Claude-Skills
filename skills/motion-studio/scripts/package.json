@@ -1,0 +1,12 @@
+{
+  "name": "motion-studio-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frame-accurate renderer for the Motion Studio skill",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.56.0",
+    "three": "^0.170.0"
+  }
+}

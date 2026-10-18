@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Motion Studio Player</title>
+    <link rel="stylesheet" href="/runtime/base.css" />
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script type="module">
+      import { Player } from '/runtime/engine.js';
+      try {
+        const params = new URLSearchParams(location.search);
+        const tl = await (await fetch(params.get('timeline'))).json();
+        window.player = new Player(document.getElementById('stage'), tl);
+        await window.player.ready();
+        window.__ready = true;
+      } catch (e) {
+        window.__error = String((e && e.stack) || e);
+        console.error(e);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+build/
+out/
+*.mp4
+!docs/*.mp4
+.DS_Store
+__pycache__/
