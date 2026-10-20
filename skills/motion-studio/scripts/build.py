@@ -27,7 +27,7 @@ def ensure_node_deps():
         die("Node.js 18+ is required (https://nodejs.org)")
     if not (SCRIPTS / "node_modules" / "playwright").exists() or not (SCRIPTS / "node_modules" / "three").exists():
         log("installing renderer dependencies (first run only)...")
-        run(["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"], cwd=str(SCRIPTS))
+        run([shutil.which("npm") or "npm", "install", "--no-audit", "--no-fund", "--loglevel=error"], cwd=str(SCRIPTS))
 
 
 def render(timeline, project, out=None, stills=None, workers=None, scale=None):
@@ -62,6 +62,8 @@ def main():
     ap.add_argument("--workers", type=int)
     ap.add_argument("--out")
     ap.add_argument("--voice")
+    ap.add_argument("--gpu", action="store_true", help="hardware-accelerated Chromium (faster blur/scale on a real GPU)")
+    ap.add_argument("--nvenc", action="store_true", help="encode with NVIDIA NVENC (falls back to libx264 if unavailable)")
     a = ap.parse_args()
 
     project = Path(a.project).resolve()
@@ -74,6 +76,10 @@ def main():
     build = project / "build"
     build.mkdir(parents=True, exist_ok=True)
 
+    if a.gpu:
+        os.environ["MS_GPU"] = "1"
+    if a.nvenc:
+        os.environ["MS_NVENC"] = "1"
     if a.voice:
         os.environ["MOTION_STUDIO_VOICE"] = a.voice
     if a.no_audio:

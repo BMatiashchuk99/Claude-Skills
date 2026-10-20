@@ -36,6 +36,28 @@ cd Claude-Skills
 На Windows скопіюйте `skills/motion-studio` у `%USERPROFILE%\.claude\skills\` і виконайте
 в папці `scripts`: `npm install`, `npx playwright install chromium`, `pip install edge-tts`.
 
+## ⚡ Рендер на власній відеокарті (Windows) — у ~50 разів швидше
+
+> 👋 **Прийшли з відео і написали RENDER?** Ось інструкція.
+
+Найповільніше — рендер. На хмарній машині з 2 ядрами 48-секундне відео 60 fps (2 872 кадри) рендериться
+щонайменше ~44 хв. На звичайному ігровому ПК — **53 секунди**:
+
+| Машина | Потоки | Відео 48 с, 1080×1920 @ 60 fps |
+|---|---|---|
+| Хмарна VM, 2 vCPU, програмний рендер | 1 | ≈ 44 хв (у кращому разі) |
+| Ryzen 5 8400F + RTX 4060, апаратний рендер + NVENC | 6 | **53 с** (разом зі зведенням звуку) |
+
+**3 кроки:**
+
+1. Завантажте **`AI-Video-Studio-Windows.zip`** з [Releases](../../releases/latest) і розпакуйте.
+2. Двічі клацніть **`setup.cmd`** — він встановить Node.js, Python і FFmpeg (winget), рендерер і перевірить відеокарту.
+3. Попросіть Claude зробити відео (папка проєкту в `projects\`), потім запустіть **`render.cmd <проєкт>`** → `output\<проєкт>.mp4`.
+
+Скіл для застосунку Claude лежить у zip як `motion-studio.plugin`; для Claude Code його може встановити `setup.cmd`.
+Карти NVIDIA RTX автоматично отримують GPU-рендер у Chromium і кодування NVENC (`build.py --gpu --nvenc`).
+Ще: `mix.cmd` (перезвести лише звук), `render-demo.cmd` (чиста консоль для запису екрана).
+
 ## Як користуватися
 
 Просто напишіть у Claude Code:

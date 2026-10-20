@@ -8,7 +8,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
@@ -30,6 +30,14 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+if (process.env.MS_DEMO === '1') {
+  // hide folders (user names) and browser noise in the console, for clean screen recordings
+  const DIRS = /[A-Za-z]:[\\/](?:[^\\/\n"]*[\\/])+|\/(?:home|Users|sessions|root|tmp)\/(?:[^/\n"]*\/)+/g;
+  const strip = (x) => String(x).replace(DIRS, '');
+  const ol = console.log.bind(console), oe = console.error.bind(console);
+  console.log = (...a) => { const m = a.map(strip).join(' '); if (!m.startsWith('[page]')) ol(m); };
+  console.error = (...a) => { const m = a.map(strip).join(' '); if (!m.startsWith('[page]')) oe(m); };
+}
 const timelinePath = path.resolve(args._[0] || '');
 if (!args._[0] || !fs.existsSync(timelinePath)) {
   console.error('usage: node render.mjs <timeline.json> --out video.mp4 | --stills DIR');
@@ -75,7 +83,10 @@ function startServer() {
 async function launch() {
   const opts = {
     headless: true,
-    args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--disable-web-security', '--font-render-hinting=none', '--hide-scrollbars'],
+    // MS_GPU=1 (build.py --gpu): use the real GPU through ANGLE instead of software SwiftShader
+    args: process.env.MS_GPU === '1'
+      ? [process.platform === 'win32' ? '--use-angle=d3d11' : '--use-angle=default', '--enable-gpu', '--enable-gpu-rasterization', '--ignore-gpu-blocklist', '--disable-web-security', '--font-render-hinting=none', '--hide-scrollbars']
+      : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--disable-web-security', '--font-render-hinting=none', '--hide-scrollbars'],
   };
   if (process.env.CHROME_PATH) opts.executablePath = process.env.CHROME_PATH;
   try {
@@ -109,10 +120,25 @@ async function frameAt(page, t, type = 'jpeg') {
   return page.screenshot(type === 'png' ? { type: 'png' } : { type: 'jpeg', quality: 94 });
 }
 
+// MS_NVENC=1 (build.py --nvenc): NVIDIA hardware encoder when it actually works on this machine
+let codecCache = null;
+function videoCodec() {
+  if (codecCache) return codecCache;
+  const x264 = ['-c:v', 'libx264', '-preset', 'medium', '-crf', '17'];
+  codecCache = x264;
+  if (process.env.MS_NVENC === '1') {
+    const probe = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=black:s=256x256:d=0.1', '-c:v', 'h264_nvenc', '-f', 'null', '-']);
+    if (probe.status === 0) codecCache = ['-c:v', 'h264_nvenc', '-preset', 'p5', '-rc', 'vbr', '-cq', '19', '-b:v', '0'];
+    else console.log('NVENC not available, using libx264');
+  }
+  return codecCache;
+}
+
 function ffmpegEncoder(out) {
   const ff = spawn('ffmpeg', [
     '-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
-    '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', '-r', String(fps), '-movflags', '+faststart', out,
+    ...videoCodec(),
+    '-pix_fmt', 'yuv420p', '-r', String(fps), '-movflags', '+faststart', out,
   ], { stdio: ['pipe', 'inherit', 'inherit'] });
   const done = new Promise((res, rej) => ff.on('close', (c) => (c === 0 ? res() : rej(new Error('ffmpeg exited with ' + c)))));
   const write = (buf) => new Promise((res) => (ff.stdin.write(buf) ? res() : ff.stdin.once('drain', res)));
