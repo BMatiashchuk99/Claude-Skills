@@ -52,6 +52,29 @@ python doctor.py
 
 **Codex, Cursor, Antigravity and others:** see [AGENTS.md](AGENTS.md).
 
+## ⚡ Render on your own GPU (Windows) — ~50× faster
+
+> 👋 **Came here from the video and commented RENDER?** This is the setup.
+
+Rendering is the slow part. On a 2-core cloud machine a 48-second 60 fps video (2,872 frames) takes
+~44 minutes at best. On a mid-range gaming PC it takes **53 seconds**:
+
+| Machine | Workers | 48 s video, 1080×1920 @ 60 fps |
+|---|---|---|
+| Cloud VM, 2 vCPU, software rendering | 1 | ≈ 44 min (best case) |
+| Ryzen 5 8400F + RTX 4060, hardware rendering + NVENC | 6 | **53 s** (incl. audio mix) |
+
+**3 steps:**
+
+1. Download **`AI-Video-Studio-Windows.zip`** from [Releases](../../releases/latest) and unzip it.
+2. Double-click **`setup.cmd`**: it installs Node.js, Python and FFmpeg (winget), the renderer, and checks your GPU.
+3. Ask Claude for a video (project folder in `projects\`), then run **`render.cmd <project>`** → `output\<project>.mp4`.
+
+The skill for the Claude app is in the zip as `motion-studio.plugin`; for Claude Code, `setup.cmd` can install it.
+NVIDIA RTX cards get GPU rendering in Chromium + NVENC encoding automatically (`build.py --gpu --nvenc`).
+Other helpers: `mix.cmd` (re-mix audio only), `render-demo.cmd` (clean console for screen recordings).
+Got your own numbers? Open an issue with your CPU/GPU and render time — the table grows. 🙌
+
 ## Use
 
 In Claude Code just ask:
@@ -67,7 +90,7 @@ python3 ~/.claude/skills/motion-studio/scripts/build.py examples/launch-teaser -
 python3 ~/.claude/skills/motion-studio/scripts/build.py examples/launch-teaser            # full video -> out/
 ```
 
-Flags: `--preview` (half resolution), `--no-audio`, `--workers 4`, `--voice edge|elevenlabs|piper|say|espeak|silent`, `--out file.mp4`.
+Flags: `--preview` (half resolution), `--no-audio`, `--workers 4`, `--gpu` (hardware Chromium), `--nvenc` (NVIDIA encoder), `--voice edge|elevenlabs|piper|say|espeak|silent`, `--out file.mp4`.
 
 ## How it works
 
@@ -107,7 +130,7 @@ Themes: `midnight`, `neon`, `sunset`, `ocean`, `paper`, `mono` — or your own c
 
 **Do I need any paid software?** No. ElevenLabs is optional.
 **Can I use my own music?** Yes: `"music": {"file": "assets/track.mp3"}`. Use tracks you have the rights to.
-**It's slow.** Rendering is CPU-only by default. Use `--preview` while iterating; 3D scenes are the slowest.
+**It's slow.** Rendering is CPU-only by default. Use `--workers`, `--gpu --nvenc` on an NVIDIA card (see [Render on your own GPU](#-render-on-your-own-gpu-windows--50-faster)), and `--preview` while iterating; 3D scenes are the slowest.
 **Chromium won't start.** `cd skills/motion-studio/scripts && npx playwright install chromium`, or set `CHROME_PATH`.
 
 ## License

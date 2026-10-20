@@ -5,3 +5,6 @@ out/
 !docs/*.mp4
 .DS_Store
 __pycache__/
+/projects/
+/output/
+/dist/

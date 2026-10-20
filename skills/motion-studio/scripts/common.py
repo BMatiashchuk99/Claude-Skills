@@ -11,12 +11,21 @@ SCRIPTS = Path(__file__).resolve().parent
 SKILL = SCRIPTS.parent
 
 
+_DIRS = re.compile(r"[A-Za-z]:[\\/](?:[^\\/\n\"]*[\\/])+|/(?:home|Users|sessions|root|tmp)/(?:[^/\n\"]*/)+")
+
+
+def _demo(msg):
+    """MS_DEMO=1 hides folders (and so user names) in console output, handy for screen recordings."""
+    msg = str(msg)
+    return _DIRS.sub("", msg) if os.environ.get("MS_DEMO") == "1" else msg
+
+
 def log(msg):
-    print(f"[motion-studio] {msg}", flush=True)
+    print(f"[motion-studio] {_demo(msg)}", flush=True)
 
 
 def die(msg, code=1):
-    print(f"[motion-studio] ERROR: {msg}", file=sys.stderr, flush=True)
+    print(f"[motion-studio] ERROR: {_demo(msg)}", file=sys.stderr, flush=True)
     sys.exit(code)
 
 
@@ -62,3 +71,13 @@ def slugify(s):
 
 def env_flag(name):
     return os.environ.get(name, "").strip().lower() in ("1", "true", "yes")
+
+
+def ffmpeg_major():
+    """Major version of the ffmpeg on PATH (0 if unknown, e.g. git builds)."""
+    try:
+        out = subprocess.run(["ffmpeg", "-hide_banner", "-version"], text=True, capture_output=True).stdout
+        m = re.search(r"ffmpeg version n?(\d+)\.", out)
+        return int(m.group(1)) if m else 0
+    except OSError:
+        return 0

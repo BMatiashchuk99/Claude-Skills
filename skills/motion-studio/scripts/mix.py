@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import die, load_json, log, run  # noqa: E402
+from common import die, load_json, log, run, ffmpeg_major  # noqa: E402
 from sfx import cue_file  # noqa: E402
 
 
@@ -106,8 +106,15 @@ def main(project, video, final):
     graph = build / "mix_graph.txt"
     graph.write_text(";\n".join(filters), encoding="utf-8")
     raw = build / "mix_raw.wav"
-    run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex_script", str(graph), "-map", "[out]",
-         "-ar", "48000", "-t", f"{dur:.3f}", str(raw)])
+    # ffmpeg 7+ reads a filter graph file with "-/filter_complex"; "-filter_complex_script" is gone in ffmpeg 8+
+    tail = ["-map", "[out]", "-ar", "48000", "-t", f"{dur:.3f}", str(raw)]
+    major = ffmpeg_major()  # 0 = unknown (git build): try the new syntax first
+    first, second = ["-/filter_complex"], ["-filter_complex_script"]
+    if 0 < major < 7:
+        first, second = second, first
+    res = run(["ffmpeg", "-y", "-loglevel", "error", *inputs, *first, str(graph), *tail], check=False, capture=True)
+    if res.returncode != 0:
+        run(["ffmpeg", "-y", "-loglevel", "error", *inputs, *second, str(graph), *tail])
 
     # two-pass loudness normalization
     res = run(["ffmpeg", "-hide_banner", "-i", str(raw), "-af", f"loudnorm=I={lufs}:TP=-1.0:LRA=11:print_format=json",

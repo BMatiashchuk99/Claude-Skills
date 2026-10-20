@@ -83,6 +83,6 @@ time - never use CSS transitions, `setTimeout`, `requestAnimationFrame` or `Date
   `CHROME_PATH` to an installed Chrome.
 - Text overflows → shorten it; headlines are auto-fitted, but long lists/terminal lines are not.
 - 3D scene is black → the GPU is unavailable; the renderer already uses SwiftShader, just slower.
-- Rendering slow → `--preview` while iterating; `--workers 4` on machines with many cores.
+- Rendering slow → `--preview` while iterating; `--workers N` on machines with many cores; `--gpu --nvenc` on an NVIDIA GPU (Windows users: the `windows/render.cmd` helper sets all of this).
 - Captions out of sync → the provider gave no word timings (piper/say/espeak); they're
   estimated. edge-tts and ElevenLabs give exact timings.
